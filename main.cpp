@@ -4,14 +4,36 @@
 #include <cmath>
 #include "neural_net.h"
 #include "loss.h"
+#include "MNIST_loader.h"
 
 using std::vector;
 using std::cin;
 using std::cout;
 using std::endl;
 
+NeuralNet *train_digit_classifier() {
+    MNIST_loader data_loader("data/mnist_train.csv", "data/mnist_test.csv");
+
+    // Creating neural network and adding layers.
+    NeuralNet *nn = new NeuralNet();
+    nn->add_layer(new LinearLayer(784, 100));
+    nn->add_layer(new TanhLayer(100));
+    nn->add_layer(new LinearLayer(100, 50));
+    nn->add_layer(new TanhLayer(50));
+    nn->add_layer(new LinearLayer(50, 10));
+    nn->add_layer(new TanhLayer(10));
+    nn->add_loss(new MeanSquaredLoss(10));
+
+    nn->fit(data_loader.train_data, data_loader.train_labels, 30, 0.1);
+
+    return nn;
+}
+
 int main() {
 
+    train_digit_classifier();
+
+    /*
     // Creating neural network and adding layers.
     NeuralNet *nn = new NeuralNet();
     nn->add_layer(new LinearLayer(1, 16));
@@ -32,6 +54,7 @@ int main() {
         outputs[i] = new double[1];
         outputs[i][0] = sin(inputs[i][0]);
     }
+    */
     
     /*
     NeuralNet *nn = new NeuralNet();
@@ -54,6 +77,7 @@ int main() {
     outputs[3] = new double[1] {0};
     */
 
+   /*
     // Fit the neural network.
     nn->fit(inputs, outputs, 1000, 0.1);
 
@@ -67,5 +91,5 @@ int main() {
         delete[] inputs[i];
         delete[] outputs[i];
     }
-    delete nn;
+    delete nn;*/
 }
