@@ -36,6 +36,9 @@ void Layer::reset_grad() {
     for (int i = 0; i < in_size; i++) {
         in_grads[i] = 0;
     }
+    for (int i = 0; i < out_size; i++) {
+        out_grads[i] = 0;
+    }
 }
 
 LinearLayer::LinearLayer(int _in_size, int _out_size) : Layer(_in_size, _out_size) {
@@ -81,8 +84,12 @@ void LinearLayer::forward(double *input) {
 }
 
 void LinearLayer::backprop(double *out_grads) {
+    // The gradients for the input layer always need to be reset.
+    for (int i = 0; i < in_size; i++) {
+        in_grads[i] = 0;
+    }
     for (int i = 0; i < out_size; i++) {
-        this->out_grads[i] = out_grads[i];
+        this->out_grads[i] += out_grads[i];
         for (int j = 0; j < in_size; j++) {
             w_grads[i][j] += input[j] * out_grads[i];
             in_grads[j] += weights[i][j] * out_grads[i];
@@ -119,7 +126,7 @@ void TanhLayer::forward(double *input) {
 
 void TanhLayer::backprop(double *out_grads) {
     for (int i = 0; i < out_size; i++) {
-        this->out_grads[i] = out_grads[i];
+        this->out_grads[i] += out_grads[i];
         in_grads[i] += (1 - output[i] * output[i]) * out_grads[i];
     }
 }

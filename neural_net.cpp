@@ -42,19 +42,36 @@ void NeuralNet::reset_grad() {
     }
 }
 
-void NeuralNet::fit(vector<double *> input_train, vector<double *> output_train, int epochs, double learning_rate) {
+void NeuralNet::fit(vector<double *> input_train, vector<double *> output_train, int epochs, int batch_size, double learning_rate) {
     int train_size = input_train.size();
+    int batches = (train_size / batch_size) + (train_size % batch_size == 0 ? 0 : 1);
+
     for (int epoch = 0; epoch < epochs; epoch++) {
         double avg_error = 0;
-        for (int i = 0; i < train_size; i++) {
-            double *cur_output = forward(input_train[i]);
-            avg_error += loss->calc_loss(cur_output, output_train[i]);
-            backprop(loss->grads);
+        
+        for (int batch = 0; batch < batches; batch++) {
+            int from = batch * batch_size;
+            int to = std::min(from + batch_size, train_size);
+            double batch_error = 0;
+
+            for (int i = from; i < to; i++) {
+                double *cur_output = forward(input_train[i]);
+                double error = loss->calc_loss(cur_output, output_train[i]);
+                avg_error += error;
+                batch_error += error;
+                
+                backprop(loss->grads);
+            }
+            batch_error /= to - from;
+            
             step(learning_rate);
             reset_grad();
+
+            if (batch % 1000 == 0) cout << "Batch #" << batch + 1 << ", Error: " << batch_error << endl; 
         }
+
         avg_error /= train_size;
-        if (epoch % 100 == 0) cout << "Epoch #" << epoch << ": " << avg_error << endl;
+        cout << "Epoch #" << epoch + 1 << ", Error: " << avg_error << endl; 
     }
 }
 

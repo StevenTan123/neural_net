@@ -34,7 +34,7 @@ public:
     void reset_grad();
 
     // Fits neural network by minimizing loss through gradient descent.
-    void fit(std::vector<double *> input_train, std::vector<double *> output_train, int epochs, double learning_rate);
+    void fit(std::vector<double *> input_train, std::vector<double *> output_train, int epochs, int batch_size, double learning_rate);
 
     // Prints neural network weights.
     void print_nn();

@@ -13,7 +13,7 @@ using std::endl;
 
 NeuralNet *train_digit_classifier() {
     MNIST_loader data_loader("data/mnist_train.csv", "data/mnist_test.csv");
-
+    
     // Creating neural network and adding layers.
     NeuralNet *nn = new NeuralNet();
     nn->add_layer(new LinearLayer(784, 100));
@@ -24,16 +24,34 @@ NeuralNet *train_digit_classifier() {
     nn->add_layer(new TanhLayer(10));
     nn->add_loss(new MeanSquaredLoss(10));
 
-    nn->fit(data_loader.train_data, data_loader.train_labels, 30, 0.1);
+    nn->fit(data_loader.train_data, data_loader.train_labels, 1, 1, 0.1);
 
+    int correct = 0;
+    int test_data_size = data_loader.test_data.size();
+    for (int i = 0; i < test_data_size; i++) {
+        double *input = data_loader.test_data[i];
+        double *output = nn->forward(input);
+        double *label = data_loader.test_labels[i];
+
+        int pred = 0;
+        for (int j = 0; j < data_loader.N_CLASSES; j++) {
+            if (output[j] > output[pred]) {
+                pred = j;
+            }
+        }
+
+        if (label[pred] > 0.5) {
+            correct++;
+        }
+    }
+
+    double accuracy = (double) correct / test_data_size;
+    cout << "Test Accuracy: " << accuracy << endl;
+    
     return nn;
 }
 
-int main() {
-
-    train_digit_classifier();
-
-    /*
+NeuralNet *train_sin() {
     // Creating neural network and adding layers.
     NeuralNet *nn = new NeuralNet();
     nn->add_layer(new LinearLayer(1, 16));
@@ -45,7 +63,7 @@ int main() {
     nn->add_loss(new MeanSquaredLoss(1));
 
     // Setting up input and output training data. Here we are trying to fit the sin function.
-    int N = 64;
+    int N = 32;
     vector<double*> inputs(N);
     vector<double*> outputs(N);
     for (int i = 0; i < N; i++) {
@@ -54,33 +72,11 @@ int main() {
         outputs[i] = new double[1];
         outputs[i][0] = sin(inputs[i][0]);
     }
-    */
-    
-    /*
-    NeuralNet *nn = new NeuralNet();
-    nn->add_layer(new LinearLayer(2, 3));
-    nn->add_layer(new TanhLayer(3));
-    nn->add_layer(new LinearLayer(3, 1));
-    nn->add_layer(new TanhLayer(1));
-    nn->add_loss(new MeanSquaredLoss(1));
-    
-    int N = 4;
-    vector<double*> inputs(4);
-    inputs[0] = new double[2] {0, 0};
-    inputs[1] = new double[2] {0, 1};
-    inputs[2] = new double[2] {1, 0};
-    inputs[3] = new double[2] {1, 1};
-    vector<double*> outputs(4);
-    outputs[0] = new double[1] {0};
-    outputs[1] = new double[1] {1};
-    outputs[2] = new double[1] {1};
-    outputs[3] = new double[1] {0};
-    */
 
-   /*
     // Fit the neural network.
-    nn->fit(inputs, outputs, 1000, 0.1);
+    nn->fit(inputs, outputs, 1000, 1, 0.1);
 
+    // Display output of neural network for the given inputs.
     for (int i = 0; i < N; i++) {
         double *output = nn->forward(inputs[i]);
         cout << "Input: " << inputs[i][0] << ", Output: " << output[0] << endl;
@@ -91,5 +87,49 @@ int main() {
         delete[] inputs[i];
         delete[] outputs[i];
     }
-    delete nn;*/
+    return nn;
+}
+
+NeuralNet *train_xor() {
+    // Creating neural network and adding layers.
+    NeuralNet *nn = new NeuralNet();
+    nn->add_layer(new LinearLayer(2, 8));
+    nn->add_layer(new TanhLayer(8));
+    nn->add_layer(new LinearLayer(8, 1));
+    nn->add_layer(new TanhLayer(1));
+    nn->add_loss(new MeanSquaredLoss(1));
+
+    // Inputs and expected outputs for XOR. Used to train model.
+    vector<double*> inputs(4);
+    inputs[0] = new double[2] {0, 0};
+    inputs[1] = new double[2] {0, 1};
+    inputs[2] = new double[2] {1, 0};
+    inputs[3] = new double[2] {1, 1};
+    vector<double*> outputs(4);
+    outputs[0] = new double[1] {0};
+    outputs[1] = new double[1] {1};
+    outputs[2] = new double[1] {1};
+    outputs[3] = new double[1] {0};
+
+    // Fit the neural network.
+    nn->fit(inputs, outputs, 1000, 1, 0.1);
+
+    // Display output of neural network for the given inputs. 
+    for (int i = 0; i < 4; i++) {
+        double *output = nn->forward(inputs[i]);
+        cout << "Input: " << inputs[i][0] << inputs[i][1] << ", Output: " << output[0] << endl;
+    }
+
+    // Free any allocated memory.
+    for (int i = 0; i < 4; i++) {
+        delete[] inputs[i];
+        delete[] outputs[i];
+    }
+    return nn;
+}
+
+
+int main() {
+    NeuralNet *nn = train_xor(); //train_digit_classifier();
+    delete nn;
 }
