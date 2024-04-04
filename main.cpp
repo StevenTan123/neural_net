@@ -24,7 +24,7 @@ NeuralNet *train_digit_classifier() {
     nn->add_layer(new TanhLayer(10));
     nn->add_loss(new MeanSquaredLoss(10));
 
-    nn->fit(train_data.data, train_data.labels, 5, 32, 0.01);
+    nn->fit(train_data.data, train_data.labels, 30, 32, 0.01);
     return nn;
 }
 
