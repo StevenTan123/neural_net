@@ -12,7 +12,7 @@ using std::cout;
 using std::endl;
 
 NeuralNet *train_digit_classifier() {
-    MNIST_loader data_loader("data/mnist_train.csv", "data/mnist_test.csv");
+    MNIST_loader train_data("data/mnist_train.csv");
     
     // Creating neural network and adding layers.
     NeuralNet *nn = new NeuralNet();
@@ -24,17 +24,22 @@ NeuralNet *train_digit_classifier() {
     nn->add_layer(new TanhLayer(10));
     nn->add_loss(new MeanSquaredLoss(10));
 
-    nn->fit(data_loader.train_data, data_loader.train_labels, 1, 1, 0.1);
+    nn->fit(train_data.data, train_data.labels, 1, 32, 0.1);
+    return nn;
+}
+
+void test_digit_classifier(NeuralNet *nn) {
+    MNIST_loader test_data("data/mnist_train.csv");
 
     int correct = 0;
-    int test_data_size = data_loader.test_data.size();
+    int test_data_size = test_data.data.size();
     for (int i = 0; i < test_data_size; i++) {
-        double *input = data_loader.test_data[i];
+        double *input = test_data.data[i];
         double *output = nn->forward(input);
-        double *label = data_loader.test_labels[i];
+        double *label = test_data.labels[i];
 
         int pred = 0;
-        for (int j = 0; j < data_loader.N_CLASSES; j++) {
+        for (int j = 0; j < test_data.N_CLASSES; j++) {
             if (output[j] > output[pred]) {
                 pred = j;
             }
@@ -46,9 +51,7 @@ NeuralNet *train_digit_classifier() {
     }
 
     double accuracy = (double) correct / test_data_size;
-    cout << "Test Accuracy: " << accuracy << endl;
-    
-    return nn;
+    cout << "Model Accuracy: " << accuracy << endl;
 }
 
 NeuralNet *train_sin() {
@@ -63,7 +66,7 @@ NeuralNet *train_sin() {
     nn->add_loss(new MeanSquaredLoss(1));
 
     // Setting up input and output training data. Here we are trying to fit the sin function.
-    int N = 32;
+    int N = 16;
     vector<double*> inputs(N);
     vector<double*> outputs(N);
     for (int i = 0; i < N; i++) {
@@ -112,7 +115,7 @@ NeuralNet *train_xor() {
     outputs[3] = new double[1] {0};
 
     // Fit the neural network.
-    nn->fit(inputs, outputs, 1000, 1, 0.1);
+    nn->fit(inputs, outputs, 1000, 4, 0.1);
 
     // Display output of neural network for the given inputs. 
     for (int i = 0; i < 4; i++) {

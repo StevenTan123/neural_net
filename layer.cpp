@@ -17,17 +17,12 @@ Layer::Layer(int _in_size, int _out_size) : in_size(_in_size), out_size(_out_siz
     for (int i = 0; i < in_size; i++) {
         in_grads[i] = 0;
     }
-    out_grads = new double[out_size];
-    for (int i = 0; i < out_size; i++) {
-        out_grads[i] = 0;
-    }
     input = new double[in_size];
     output = new double[out_size];
 }
 
 Layer::~Layer() {
     delete[] in_grads;
-    delete[] out_grads;
     delete[] input;
     delete[] output;
 }
@@ -35,9 +30,6 @@ Layer::~Layer() {
 void Layer::reset_grad() {
     for (int i = 0; i < in_size; i++) {
         in_grads[i] = 0;
-    }
-    for (int i = 0; i < out_size; i++) {
-        out_grads[i] = 0;
     }
 }
 
@@ -52,12 +44,11 @@ LinearLayer::LinearLayer(int _in_size, int _out_size) : Layer(_in_size, _out_siz
             w_grads[i][j] = 0;
         }
     }
-    for (int i = 0; i < in_size; i++) {
-        in_grads[i] = 0;
-    }
     biases = new double[out_size];
+    bias_grads = new double[out_size];
     for (int i = 0; i < out_size; i++) {
         biases[i] = rng(gen);
+        bias_grads[i] = 0;
     }
 }
 
@@ -69,6 +60,7 @@ LinearLayer::~LinearLayer() {
     delete[] weights;
     delete[] w_grads;
     delete[] biases;
+    delete[] bias_grads;
 }
 
 void LinearLayer::forward(double *input) {
@@ -89,7 +81,7 @@ void LinearLayer::backprop(double *out_grads) {
         in_grads[i] = 0;
     }
     for (int i = 0; i < out_size; i++) {
-        this->out_grads[i] += out_grads[i];
+        bias_grads[i] += out_grads[i];
         for (int j = 0; j < in_size; j++) {
             w_grads[i][j] += input[j] * out_grads[i];
             in_grads[j] += weights[i][j] * out_grads[i];
@@ -100,6 +92,7 @@ void LinearLayer::backprop(double *out_grads) {
 void LinearLayer::reset_grad() {
     Layer::reset_grad();
     for (int i = 0; i < out_size; i++) {
+        bias_grads[i] = 0;
         for (int j = 0; j < in_size; j++) {
             w_grads[i][j] = 0;
         }
@@ -108,7 +101,7 @@ void LinearLayer::reset_grad() {
 
 void LinearLayer::step(double learning_rate) {
     for (int i = 0; i < out_size; i++) {
-        biases[i] -= out_grads[i] * learning_rate;
+        biases[i] -= bias_grads[i] * learning_rate;
         for (int j = 0; j < in_size; j++) {
             weights[i][j] -= w_grads[i][j] * learning_rate;
         }
@@ -117,7 +110,7 @@ void LinearLayer::step(double learning_rate) {
 
 void TanhLayer::forward(double *input) {
     for (int i = 0; i < in_size; i++) {
-        Layer::input[i] = input[i];
+        this->input[i] = input[i];
     }
     for (int i = 0; i < out_size; i++) {
         output[i] = tanh(input[i]);
@@ -125,8 +118,11 @@ void TanhLayer::forward(double *input) {
 }
 
 void TanhLayer::backprop(double *out_grads) {
+    // The gradients for the input layer always need to be reset.
+    for (int i = 0; i < in_size; i++) {
+        in_grads[i] = 0;
+    }
     for (int i = 0; i < out_size; i++) {
-        this->out_grads[i] += out_grads[i];
         in_grads[i] += (1 - output[i] * output[i]) * out_grads[i];
     }
 }

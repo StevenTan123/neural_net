@@ -8,9 +8,7 @@ public:
     int in_size, out_size;
     
     // in_grads[i] stores gradient of the i-th input node.
-    // out_grads[i] stores gradient of the i-th output node.
     double *in_grads;
-    double *out_grads;
     
     // Values of input and output nodes.
     double *input;
@@ -40,10 +38,12 @@ public:
     // output layer. w_grads[i][j] stores the gradients of those edges. 
     double **weights;
     double **w_grads;
-    
-    // biases[i] = bias of the i-th node of output layer. 
+
+    // biases[i] = bias of the i-th node of output layer. bias_grads[i] stores gradient of
+    // that bias.
     double *biases;
-    
+    double *bias_grads;
+
     LinearLayer(int _in_size, int _out_size); 
     ~LinearLayer();
 

@@ -9,17 +9,14 @@ class MNIST_loader {
 public:
     const int IMG_LEN = 784;
     const int N_CLASSES = 10;
-    std::vector<double*> train_data;
-    std::vector<double*> train_labels;
-    std::vector<double*> test_data;
-    std::vector<double*> test_labels;
+    // data is a vector of double arrays, each representing an input image.
+    std::vector<double*> data;
+    // labels is a vector expected outputs corresponding to the input data.
+    std::vector<double*> labels;
     
-    // Constructor reads in training and testing data
-    MNIST_loader(std::string train_filename, std::string test_filename);
+    // Constructor reads in data and labels from file.
+    MNIST_loader(std::string filename);
     ~MNIST_loader();
-
-    // Populates data and labels from the file.
-    void populate_data(std::ifstream &file, std::vector<double*> &data, std::vector<double*> &labels);
 };
 
 #endif

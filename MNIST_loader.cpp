@@ -10,31 +10,10 @@ using std::string;
 using std::vector;
 using std::stringstream;
 
-MNIST_loader::MNIST_loader(string train_filename, string test_filename) {
-    ifstream train_file(train_filename);
-    ifstream test_file(test_filename);
-
-    populate_data(train_file, train_data, train_labels);
-    populate_data(test_file, test_data, test_labels);
-}
-
-MNIST_loader::~MNIST_loader() {
-    for (double *data : train_data) {
-        delete[] data;
-    }
-    for (double *label : train_labels) {
-        delete[] label;
-    }
-    for (double *data : test_data) {
-        delete[] data;
-    }
-    for (double *label : test_labels) {
-        delete[] label;
-    }
-}
-
-void MNIST_loader::populate_data(ifstream &file, vector<double*> &data, vector<double*> &labels) {
+MNIST_loader::MNIST_loader(string filename) {
+    ifstream file(filename);
     string line;
+    
     int row = 0;
     while (std::getline(file, line)) {
         if (row == 0) {
@@ -63,5 +42,14 @@ void MNIST_loader::populate_data(ifstream &file, vector<double*> &data, vector<d
         data.push_back(img);
         labels.push_back(label);
         row++;
+    }
+}
+
+MNIST_loader::~MNIST_loader() {
+    for (double *input : data) {
+        delete[] input;
+    }
+    for (double *label : labels) {
+        delete[] label;
     }
 }

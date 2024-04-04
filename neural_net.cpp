@@ -53,7 +53,7 @@ void NeuralNet::fit(vector<double *> input_train, vector<double *> output_train,
             int from = batch * batch_size;
             int to = std::min(from + batch_size, train_size);
             double batch_error = 0;
-
+            
             for (int i = from; i < to; i++) {
                 double *cur_output = forward(input_train[i]);
                 double error = loss->calc_loss(cur_output, output_train[i]);
@@ -67,11 +67,11 @@ void NeuralNet::fit(vector<double *> input_train, vector<double *> output_train,
             step(learning_rate);
             reset_grad();
 
-            if (batch % 1000 == 0) cout << "Batch #" << batch + 1 << ", Error: " << batch_error << endl; 
+            if (batch > 0 && batch % 100 == 0) cout << "Batch #" << batch << ", Error: " << batch_error << endl; 
         }
 
         avg_error /= train_size;
-        cout << "Epoch #" << epoch + 1 << ", Error: " << avg_error << endl; 
+        cout << "Epoch #" << epoch << ", Error: " << avg_error << endl; 
     }
 }
 
