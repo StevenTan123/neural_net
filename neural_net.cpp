@@ -67,7 +67,7 @@ void NeuralNet::fit(vector<double *> input_train, vector<double *> output_train,
             step(learning_rate);
             reset_grad();
 
-            if (batch > 0 && batch % 100 == 0) cout << "Batch #" << batch << ", Error: " << batch_error << endl; 
+            if (batch > 0 && batch % 500 == 0) cout << "Batch #" << batch << ", Error: " << batch_error << endl; 
         }
 
         avg_error /= train_size;
